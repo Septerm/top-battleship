@@ -1,2 +1,8 @@
-# Project Title 
-A basic node stack from developing and building web-applications 
+# The Odin Project - BattleShip Game
+
+A web base Battleship game where you play the classic battle ship game against the computer 
+
+
+
+
+
