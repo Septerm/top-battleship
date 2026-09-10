@@ -1,4 +1,5 @@
 import { GameBoard } from "./src/gameBoard";
+import { Ship } from "./src/ship";
 
 
 describe('Gameboard placeShip function', () => {
@@ -53,5 +54,93 @@ describe('Gameboard placeShip function', () => {
     expect(gameboard.board[1][1]).toBeNull();
     // The original ship should remain intact at the overlap point
     expect(gameboard.board[0][1]).toBe(mockShip);
+  });
+});
+
+
+
+describe('Gameboard - Ship Tracking & Attacks', () => {
+  let gameboard;
+
+  beforeEach(() => {
+    gameboard = new GameBoard();
+  });
+
+  describe('receiveAttack', () => {
+    test('registers a hit on a ship at the target coordinates', () => {
+      const ship = new Ship(3);
+      gameboard.placeShip(ship, 0, 0, 'horizontal');
+
+      gameboard.receiveAttack(0, 0);
+
+      expect(ship.hits).toBe(1);
+    });
+
+
+    test('prevents attacking the exact same coordinate twice', () => {
+      const ship = new Ship(2);
+      gameboard.placeShip(ship, 0, 0, 'horizontal');
+
+      gameboard.receiveAttack(0, 0);
+      
+      const secondAttackResult = gameboard.receiveAttack(0, 0);
+      
+      expect(secondAttackResult).toBe(undefined);
+      expect(ship.hits).toBe(1);
+    });
+  });
+
+  describe('numberOfShipsSunk', () => {
+    test('returns 0 when no ships have been sunk', () => {
+      const ship1 = new Ship(2);
+      const ship2 = new Ship(3);
+      gameboard.placeShip(ship1, 0, 0, 'horizontal');
+      gameboard.placeShip(ship2, 2, 0, 'horizontal');
+
+      gameboard.receiveAttack(0, 0); // Hit ship1 once (length 2)
+
+      expect(gameboard.numberOfShipsSunk()).toBe(0);
+    });
+
+    test('accurately counts single and multiple sunk ships', () => {
+      const ship1 = new Ship(1);
+      const ship2 = new Ship(2);
+      gameboard.placeShip(ship1, 0, 0, 'horizontal');
+      gameboard.placeShip(ship2, 2, 0, 'horizontal');
+
+      // Sink ship1
+      gameboard.receiveAttack(0, 0);
+      expect(gameboard.numberOfShipsSunk()).toBe(1);
+
+      // Sink ship2
+      gameboard.receiveAttack(2, 0);
+      gameboard.receiveAttack(3, 0);
+      expect(gameboard.numberOfShipsSunk()).toBe(2);
+    });
+  });
+
+  describe('isAllShipsSunk', () => {
+    test('returns false when ships are still afloat', () => {
+      const ship = new Ship(2);
+      gameboard.placeShip(ship, 0, 0, 'horizontal');
+
+      gameboard.receiveAttack(0, 0); // Hit 1 of 2
+
+      expect(gameboard.isAllShipsSunk()).toBe(false);
+    });
+
+    test('returns true when every ship placed on the board has been sunk', () => {
+      const ship1 = new Ship(1);
+      const ship2 = new Ship(2);
+      gameboard.placeShip(ship1, 0, 0, 'horizontal');
+      gameboard.placeShip(ship2, 2, 0, 'horizontal');
+
+      // Sink both ships
+      gameboard.receiveAttack(0, 0);
+      gameboard.receiveAttack(2, 0);
+      gameboard.receiveAttack(3, 0);
+
+      expect(gameboard.isAllShipsSunk()).toBe(true);
+    });
   });
 });
