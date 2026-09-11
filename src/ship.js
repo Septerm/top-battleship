@@ -8,7 +8,6 @@ export class Ship {
 
     hit () {
         this.hits++
-        this.destroy = true;
     }
 
 

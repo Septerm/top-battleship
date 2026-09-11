@@ -8,6 +8,38 @@ export class GameBoard {
 
     }
 
+    placeShipRandomly(ship) {
+        let placed = false;
+        while (!placed) {
+            const direction = Math.random() < 0.5 ? 'horizontal' : 'vertical';
+            const x = Math.floor(Math.random() * 10);
+            const y = Math.floor(Math.random() * 10);
+
+            // Temporarily store ship length to check bounds without modifying ship object
+            const len = ship.length;
+            if (direction === 'horizontal' && x + len <= 10) {
+                // Check collision
+                let collision = false;
+                for (let i = x; i < x + len; i++) {
+                    if (this.board[y][i] !== null) collision = true;
+                }
+                if (!collision) {
+                    this.placeShip(ship, x, y, direction);
+                    placed = true;
+                }
+            } else if (direction === 'vertical' && y + len <= 10) {
+                let collision = false;
+                for (let i = y; i < y + len; i++) {
+                    if (this.board[i][x] !== null) collision = true;
+                }
+                if (!collision) {
+                    this.placeShip(ship, x, y, direction);
+                    placed = true;
+                }
+            }
+        }
+    }
+
     placeShip(ship, x, y, direction) {
 
         if( x + ship.length > 10  && direction === 'horizontal' ||  y + ship.length > 10  && direction === 'vertical' ) return;
@@ -76,7 +108,7 @@ export class GameBoard {
 
         let count = 0
 
-        for( s of this.ships) {
+        for(const s of this.ships) {
 
             if(s.isSunk() === true) {
                 count++;
